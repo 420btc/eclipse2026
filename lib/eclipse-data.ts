@@ -6,8 +6,8 @@ export interface EclipsePathPoint {
   time: string // UTC
   centralLat: number
   centralLng: number
-  northLat: number
-  northLng: number
+  northLat: number | null
+  northLng: number | null
   southLat: number
   southLng: number
   pathWidth: number // km

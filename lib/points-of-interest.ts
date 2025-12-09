@@ -52,6 +52,17 @@ export const pointsOfInterest: PointOfInterest[] = [
   },
   // ASTURIAS
   {
+    id: "cementerio-luarca",
+    name: "Cementerio de Luarca",
+    lat: 43.5448,
+    lng: -6.5361,
+    category: "monumento",
+    description: "Uno de los cementerios más bellos del mundo, con vistas al mar. Justo en la línea central.",
+    photoTip: "Totalidad ~1m 49s. Máxima duración en la península. Vistas espectaculares al Cantábrico.",
+    inTotality: true,
+    duracionTotalidad: "1m 49s",
+  },
+  {
     id: "covadonga",
     name: "Lagos de Covadonga",
     lat: 43.2714,
@@ -120,6 +131,28 @@ export const pointsOfInterest: PointOfInterest[] = [
   },
   // CASTILLA Y LEÓN
   {
+    id: "canon-rio-lobos",
+    name: "Cañón del Río Lobos",
+    lat: 41.7416,
+    lng: -3.0736,
+    category: "natural",
+    description: "Espectacular cañón calizo en Soria/Burgos. La línea central pasa exactamente por aquí.",
+    photoTip: "Totalidad ~1m 45s. La Ermita de San Bartolomé en el fondo del cañón con el eclipse.",
+    inTotality: true,
+    duracionTotalidad: "1m 45s",
+  },
+  {
+    id: "santo-domingo-silos",
+    name: "Monasterio de Silos",
+    lat: 41.9633,
+    lng: -3.4208,
+    category: "religioso",
+    description: "Joya del románico famosa por su claustro y canto gregoriano. Muy cerca de la centralidad.",
+    photoTip: "Totalidad ~1m 44s. El ciprés del claustro bajo la luz de la totalidad.",
+    inTotality: true,
+    duracionTotalidad: "1m 44s",
+  },
+  {
     id: "catedral-burgos",
     name: "Catedral de Burgos",
     lat: 42.3406,
@@ -153,6 +186,18 @@ export const pointsOfInterest: PointOfInterest[] = [
     inTotality: true,
     duracionTotalidad: "1m 25s",
   },
+  // CASTILLA-LA MANCHA
+  {
+    id: "castillo-siguenza",
+    name: "Castillo de Sigüenza",
+    lat: 41.0652,
+    lng: -2.6416,
+    category: "monumento",
+    description: "Imponente castillo medieval (Parador) en Guadalajara. Cerca de la línea central.",
+    photoTip: "Totalidad ~1m 38s. Las torres almenadas recortadas contra el eclipse.",
+    inTotality: true,
+    duracionTotalidad: "1m 38s",
+  },
   // ARAGÓN
   {
     id: "basilica-pilar",
@@ -176,7 +221,30 @@ export const pointsOfInterest: PointOfInterest[] = [
     inTotality: true,
     duracionTotalidad: "1m 06s",
   },
+  // COMUNIDAD VALENCIANA
+  {
+    id: "castillo-peniscola",
+    name: "Castillo de Peñíscola",
+    lat: 40.3585,
+    lng: 0.4074,
+    category: "monumento",
+    description: "Fortaleza templaria junto al mar. La línea central pasa sobre el castillo.",
+    photoTip: "Totalidad ~1m 15s. El castillo del Papa Luna y el mar Mediterráneo en oscuridad.",
+    inTotality: true,
+    duracionTotalidad: "1m 15s",
+  },
   // BALEARES
+  {
+    id: "catedral-palma",
+    name: "Catedral de Palma",
+    lat: 39.5674,
+    lng: 2.6483,
+    category: "religioso",
+    description: "Catedral gótica frente al mar. El eclipse termina aquí al atardecer.",
+    photoTip: "Totalidad ~25s. Sol rozando el horizonte (2°) junto a la catedral.",
+    inTotality: true,
+    duracionTotalidad: "0m 25s",
+  },
   {
     id: "pont-den-gil",
     name: "Pont d'en Gil",
