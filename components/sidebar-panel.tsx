@@ -10,10 +10,11 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { Sun, MapPin, Camera, Clock, Info, Search, Layers, Calculator } from "lucide-react"
+import { Sun, MapPin, Camera, Clock, Info, Search, Layers, Calculator, CloudRain } from "lucide-react"
 import { citiesData, eclipseInfo } from "@/lib/eclipse-data"
 import { pointsOfInterest, categoryLabels, categoryColors, type POICategory } from "@/lib/points-of-interest"
 import { calculateEclipseData } from "@/lib/eclipse-calculations"
+import { weatherZones } from "@/lib/weather-data"
 
 interface SidebarPanelProps {
   showPath: boolean
@@ -22,6 +23,8 @@ interface SidebarPanelProps {
   setShowCities: (value: boolean) => void
   showPOIs: boolean
   setShowPOIs: (value: boolean) => void
+  showWeather: boolean
+  setShowWeather: (value: boolean) => void
   selectedCategories: POICategory[]
   setSelectedCategories: (value: POICategory[]) => void
   selectedLocation: { lat: number; lng: number } | null
@@ -35,6 +38,8 @@ export function SidebarPanel({
   setShowCities,
   showPOIs,
   setShowPOIs,
+  showWeather,
+  setShowWeather,
   selectedCategories,
   setSelectedCategories,
   selectedLocation,
@@ -83,12 +88,15 @@ export function SidebarPanel({
       </div>
 
       <Tabs defaultValue="lugares" className="flex-1 flex flex-col min-h-0">
-        <TabsList className="grid grid-cols-4 mx-4 mt-4 flex-shrink-0">
+        <TabsList className="grid grid-cols-5 mx-4 mt-4 flex-shrink-0">
           <TabsTrigger value="lugares" className="text-xs">
             <MapPin className="w-4 h-4" />
           </TabsTrigger>
           <TabsTrigger value="capas" className="text-xs">
             <Layers className="w-4 h-4" />
+          </TabsTrigger>
+          <TabsTrigger value="clima" className="text-xs">
+            <CloudRain className="w-4 h-4" />
           </TabsTrigger>
           <TabsTrigger value="calc" className="text-xs">
             <Calculator className="w-4 h-4" />
@@ -253,6 +261,56 @@ export function SidebarPanel({
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-4 bg-orange-500/20 rounded" />
                   <span className="text-muted-foreground">Zona de totalidad</span>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="clima" className="p-4 space-y-4 mt-0">
+            <Card>
+              <CardHeader className="py-3 px-4">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <CloudRain className="w-4 h-4" />
+                  Probabilidad de Nubes
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 px-4 pb-4">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="weather" className="text-sm cursor-pointer">
+                    Activar mapa de nubes
+                  </Label>
+                  <Switch id="weather" checked={showWeather} onCheckedChange={setShowWeather} />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Visualización basada en datos históricos de nubosidad media en agosto (2000-2023).
+                </p>
+
+                <div className="space-y-3 pt-2">
+                  <div className="text-xs font-semibold mb-2">Zonas Climáticas</div>
+                  {weatherZones.map((zone) => (
+                    <div
+                      key={zone.id}
+                      className="p-3 rounded-lg border border-border bg-card/50 cursor-pointer hover:bg-accent/50 transition-colors"
+                      onClick={() => onCitySelect(zone.lat, zone.lng)}
+                    >
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-medium text-sm">{zone.name}</span>
+                        <Badge
+                          variant="outline"
+                          className={`${
+                            zone.probability < 30
+                              ? "text-green-500 border-green-500/30 bg-green-500/10"
+                              : zone.probability < 50
+                                ? "text-yellow-500 border-yellow-500/30 bg-yellow-500/10"
+                                : "text-red-500 border-red-500/30 bg-red-500/10"
+                          }`}
+                        >
+                          {zone.probability}% Nubes
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{zone.description}</p>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>

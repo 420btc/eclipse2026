@@ -4,12 +4,14 @@ import type React from "react"
 import { useRef, useState, useEffect, useCallback } from "react"
 import { eclipseCentralLine, eclipseNorthLimit, eclipseSouthLimit, citiesData } from "@/lib/eclipse-data"
 import { pointsOfInterest, categoryColors, type POICategory } from "@/lib/points-of-interest"
+import { weatherZones } from "@/lib/weather-data"
 import { X, ZoomIn, ZoomOut, RotateCcw, Layers } from "lucide-react"
 
 interface EclipseMapProps {
   showPath: boolean
   showCities: boolean
   showPOIs: boolean
+  showWeather: boolean
   selectedCategories: POICategory[]
   onLocationClick: (lat: number, lng: number) => void
 }
@@ -44,7 +46,14 @@ function tileYToLat(y: number, zoom: number): number {
   return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)))
 }
 
-export function EclipseMap({ showPath, showCities, showPOIs, selectedCategories, onLocationClick }: EclipseMapProps) {
+export function EclipseMap({
+  showPath,
+  showCities,
+  showPOIs,
+  showWeather,
+  selectedCategories,
+  onLocationClick,
+}: EclipseMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 })
   const [center, setCenter] = useState({ lat: 41.5, lng: -3.5 })
@@ -288,10 +297,39 @@ export function EclipseMap({ showPath, showCities, showPOIs, selectedCategories,
 
       {/* Eclipse overlay SVG */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
+        <defs>
+          <clipPath id="totality-clip">
+            <path d={totalityPolygonPath()} />
+          </clipPath>
+          <filter id="weather-blur" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="40" />
+          </filter>
+        </defs>
+
         {showPath && (
           <>
             {/* Totality zone fill */}
             <path d={totalityPolygonPath()} fill="rgba(255, 107, 53, 0.25)" stroke="none" />
+
+            {/* Weather Overlay (Modern Masking) */}
+            {showWeather && (
+              <g clipPath="url(#totality-clip)" filter="url(#weather-blur)" opacity="0.6">
+                {weatherZones.map((zone) => {
+                  const [x, y] = geoToScreen(zone.lng, zone.lat)
+                  // Calculate radius based on zoom to keep size consistent relative to map
+                  const radius = 100 * Math.pow(2, zoom - 6)
+                  return (
+                    <circle
+                      key={zone.id}
+                      cx={x}
+                      cy={y}
+                      r={radius}
+                      fill={zone.color}
+                    />
+                  )
+                })}
+              </g>
+            )}
 
             {/* North limit */}
             <path

@@ -12,6 +12,7 @@ export default function EclipsePage() {
   const [showPath, setShowPath] = useState(true)
   const [showCities, setShowCities] = useState(true)
   const [showPOIs, setShowPOIs] = useState(true)
+  const [showWeather, setShowWeather] = useState(false)
   const [selectedCategories, setSelectedCategories] = useState<POICategory[]>([
     "monumento",
     "natural",
@@ -45,6 +46,8 @@ export default function EclipsePage() {
           setShowCities={setShowCities}
           showPOIs={showPOIs}
           setShowPOIs={setShowPOIs}
+          showWeather={showWeather}
+          setShowWeather={setShowWeather}
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}
           selectedLocation={selectedLocation}
@@ -67,8 +70,10 @@ export default function EclipsePage() {
               showCities={showCities}
               setShowCities={setShowCities}
               showPOIs={showPOIs}
-              setShowPOIs={setShowPOIs}
-              selectedCategories={selectedCategories}
+          setShowPOIs={setShowPOIs}
+          showWeather={showWeather}
+          setShowWeather={setShowWeather}
+          selectedCategories={selectedCategories}
               setSelectedCategories={setSelectedCategories}
               selectedLocation={selectedLocation}
               onCitySelect={handleCitySelect}
@@ -83,6 +88,7 @@ export default function EclipsePage() {
           showPath={showPath}
           showCities={showCities}
           showPOIs={showPOIs}
+          showWeather={showWeather}
           selectedCategories={selectedCategories}
           onLocationClick={handleLocationClick}
         />
