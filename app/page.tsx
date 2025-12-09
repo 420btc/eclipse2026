@@ -35,9 +35,9 @@ export default function EclipsePage() {
   }, [])
 
   return (
-    <div className="h-screen flex bg-background">
+    <div className="h-[100dvh] w-full flex bg-background overflow-hidden">
       {/* Desktop Sidebar */}
-      <div className="hidden md:block w-80 flex-shrink-0">
+      <div className="hidden md:flex w-80 flex-col flex-shrink-0 h-full">
         <SidebarPanel
           showPath={showPath}
           setShowPath={setShowPath}
@@ -78,7 +78,7 @@ export default function EclipsePage() {
       </div>
 
       {/* Map */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative h-full w-full">
         <EclipseMap
           showPath={showPath}
           showCities={showCities}

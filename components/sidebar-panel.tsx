@@ -67,8 +67,8 @@ export function SidebarPanel({
   const locationData = selectedLocation ? calculateEclipseData(selectedLocation.lat, selectedLocation.lng) : null
 
   return (
-    <div className="w-full h-full bg-background border-r border-border flex flex-col">
-      <div className="p-4 border-b border-border">
+    <div className="w-full h-full bg-background border-r border-border flex flex-col overflow-hidden">
+      <div className="p-4 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center">
             <Sun className="w-6 h-6 text-orange-500" />
@@ -82,8 +82,8 @@ export function SidebarPanel({
         </div>
       </div>
 
-      <Tabs defaultValue="lugares" className="flex-1 flex flex-col">
-        <TabsList className="grid grid-cols-4 mx-4 mt-4">
+      <Tabs defaultValue="lugares" className="flex-1 flex flex-col min-h-0">
+        <TabsList className="grid grid-cols-4 mx-4 mt-4 flex-shrink-0">
           <TabsTrigger value="lugares" className="text-xs">
             <MapPin className="w-4 h-4" />
           </TabsTrigger>
@@ -98,7 +98,7 @@ export function SidebarPanel({
           </TabsTrigger>
         </TabsList>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 min-h-0">
           <TabsContent value="lugares" className="p-4 space-y-4 mt-0">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

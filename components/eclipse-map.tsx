@@ -4,7 +4,7 @@ import type React from "react"
 import { useRef, useState, useEffect, useCallback } from "react"
 import { eclipseCentralLine, eclipseNorthLimit, eclipseSouthLimit, citiesData } from "@/lib/eclipse-data"
 import { pointsOfInterest, categoryColors, type POICategory } from "@/lib/points-of-interest"
-import { X, ZoomIn, ZoomOut, RotateCcw } from "lucide-react"
+import { X, ZoomIn, ZoomOut, RotateCcw, Layers } from "lucide-react"
 
 interface EclipseMapProps {
   showPath: boolean
@@ -53,6 +53,7 @@ export function EclipseMap({ showPath, showCities, showPOIs, selectedCategories,
   const [dragStart, setDragStart] = useState({ x: 0, y: 0, lat: 0, lng: 0 })
   const [popup, setPopup] = useState<PopupInfo | null>(null)
   const [tiles, setTiles] = useState<{ x: number; y: number; url: string }[]>([])
+  const [mapStyle, setMapStyle] = useState<"dark" | "satellite">("dark")
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -86,17 +87,24 @@ export function EclipseMap({ showPath, showCities, showPOIs, selectedCategories,
       for (let y = startTileY; y < startTileY + tilesY; y++) {
         if (y >= 0 && y < maxTile) {
           const tileX = ((x % maxTile) + maxTile) % maxTile
-          // Using CartoDB dark tiles for dark theme
+          
+          let url = ""
+          if (mapStyle === "dark") {
+            url = `https://a.basemaps.cartocdn.com/dark_all/${zoom}/${tileX}/${y}.png`
+          } else {
+            url = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${zoom}/${y}/${tileX}`
+          }
+
           newTiles.push({
             x,
             y,
-            url: `https://a.basemaps.cartocdn.com/dark_all/${zoom}/${tileX}/${y}.png`,
+            url,
           })
         }
       }
     }
     setTiles(newTiles)
-  }, [center, zoom, dimensions])
+  }, [center, zoom, dimensions, mapStyle])
 
   // Convert lat/lng to screen coordinates
   const geoToScreen = useCallback(
@@ -486,6 +494,13 @@ export function EclipseMap({ showPath, showCities, showPOIs, selectedCategories,
 
       {/* Controls */}
       <div className="absolute top-4 right-4 flex flex-col gap-2">
+        <button
+          onClick={() => setMapStyle((s) => (s === "dark" ? "satellite" : "dark"))}
+          className="w-10 h-10 bg-card/90 backdrop-blur-sm rounded-lg border border-border text-foreground hover:bg-accent flex items-center justify-center transition-colors"
+          title="Cambiar mapa base"
+        >
+          <Layers className="w-5 h-5" />
+        </button>
         <button
           onClick={() => setZoom((z) => Math.min(12, z + 1))}
           className="w-10 h-10 bg-card/90 backdrop-blur-sm rounded-lg border border-border text-foreground hover:bg-accent flex items-center justify-center transition-colors"
