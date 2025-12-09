@@ -241,9 +241,9 @@ export const pointsOfInterest: PointOfInterest[] = [
     lng: 2.6483,
     category: "religioso",
     description: "Catedral gótica frente al mar. El eclipse termina aquí al atardecer.",
-    photoTip: "Totalidad ~25s. Sol rozando el horizonte (2°) junto a la catedral.",
+    photoTip: "Totalidad ~1m 36s. Sol rozando el horizonte (2°) junto a la catedral.",
     inTotality: true,
-    duracionTotalidad: "0m 25s",
+    duracionTotalidad: "1m 36s",
   },
   {
     id: "pont-den-gil",
