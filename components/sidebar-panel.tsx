@@ -218,7 +218,7 @@ export function SidebarPanel({
       </div>
 
       <Tabs defaultValue="lugares" className="flex-1 flex flex-col min-h-0">
-        <TabsList className="grid grid-cols-5 mx-4 mt-4 flex-shrink-0">
+        <TabsList className="grid grid-cols-6 mx-4 mt-4 flex-shrink-0">
           <TabsTrigger value="lugares" className="text-xs">
             <MapPin className="w-4 h-4" />
           </TabsTrigger>
@@ -231,11 +231,11 @@ export function SidebarPanel({
           <TabsTrigger value="calc" className="text-xs">
             <Calculator className="w-4 h-4" />
           </TabsTrigger>
-          <TabsTrigger value="info" className="text-xs">
-            <Info className="w-4 h-4" />
-          </TabsTrigger>
           <TabsTrigger value="alineacion" className="text-xs">
             <Ruler className="w-4 h-4" />
+          </TabsTrigger>
+          <TabsTrigger value="info" className="text-xs">
+            <Info className="w-4 h-4" />
           </TabsTrigger>
         </TabsList>
 

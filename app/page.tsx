@@ -32,6 +32,7 @@ export default function EclipsePage() {
   const [pointA, setPointA] = useState<{ lat: number; lng: number } | null>(null)
   const [pointB, setPointB] = useState<{ lat: number; lng: number } | null>(null)
   const [eclipseTime, setEclipseTime] = useState<Date | null>(null)
+  const [flyToLocation, setFlyToLocation] = useState<{ lat: number; lng: number } | null>(null)
 
   const handleLocationClick = useCallback((lat: number, lng: number) => {
     if (alignmentMode === "pointA") {
@@ -54,6 +55,7 @@ export default function EclipsePage() {
         setAlignmentMode(null)
     } else {
         setSelectedLocation({ lat, lng })
+        setFlyToLocation({ lat, lng })
         setSidebarOpen(false)
     }
   }, [alignmentMode])
@@ -144,6 +146,8 @@ export default function EclipsePage() {
           pointB={pointB}
           eclipseTime={eclipseTime}
           alignmentMode={alignmentMode}
+          selectedLocation={selectedLocation}
+          flyToLocation={flyToLocation}
         />
       </div>
     </div>

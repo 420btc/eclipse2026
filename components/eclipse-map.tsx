@@ -22,6 +22,8 @@ interface EclipseMapProps {
   pointA?: { lat: number; lng: number } | null
   pointB?: { lat: number; lng: number } | null
   eclipseTime?: Date | null
+  selectedLocation?: { lat: number; lng: number } | null
+  flyToLocation?: { lat: number; lng: number } | null
 }
 
 interface PopupInfo {
@@ -66,6 +68,8 @@ export function EclipseMap({
   pointA,
   pointB,
   eclipseTime,
+  selectedLocation,
+  flyToLocation,
 }: EclipseMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 })
@@ -73,9 +77,18 @@ export function EclipseMap({
   const [zoom, setZoom] = useState(6)
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0, lat: 0, lng: 0 })
+  const hasDragged = useRef(false)
   const [popup, setPopup] = useState<PopupInfo | null>(null)
   const [tiles, setTiles] = useState<{ x: number; y: number; url: string }[]>([])
   const [mapStyle, setMapStyle] = useState<"dark" | "satellite">("dark")
+
+  // Zoom to selected location only when explicitly requested via flyToLocation
+  useEffect(() => {
+    if (flyToLocation) {
+      setCenter({ lat: flyToLocation.lat, lng: flyToLocation.lng })
+      setZoom(10) // Zoom level close enough to see city context
+    }
+  }, [flyToLocation])
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -161,6 +174,7 @@ export function EclipseMap({
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button === 0) {
       setIsDragging(true)
+      hasDragged.current = false
       setDragStart({ x: e.clientX, y: e.clientY, lat: center.lat, lng: center.lng })
       setPopup(null)
     }
@@ -170,6 +184,10 @@ export function EclipseMap({
     if (isDragging) {
       const dx = e.clientX - dragStart.x
       const dy = e.clientY - dragStart.y
+      
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+          hasDragged.current = true
+      }
 
       const centerTileX = lngToTileX(dragStart.lng, zoom)
       const centerTileY = latToTileY(dragStart.lat, zoom)
@@ -213,7 +231,7 @@ export function EclipseMap({
   }
 
   const handleMapClick = (e: React.MouseEvent) => {
-    if (isDragging) return
+    if (isDragging || hasDragged.current) return
     const rect = containerRef.current?.getBoundingClientRect()
     if (rect) {
       const x = e.clientX - rect.left
