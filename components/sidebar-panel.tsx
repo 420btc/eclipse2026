@@ -17,6 +17,7 @@ import { calculateEclipseData } from "@/lib/eclipse-calculations"
 import { getSunPosition, calculateBearing, formatTime } from "@/lib/sun-utils"
 import { weatherZones } from "@/lib/weather-data"
 import { getMoonData } from "@/lib/moon-api"
+import { getHistoricalWeather, type WeatherStats } from "@/lib/weather-api"
 import { useRouter, usePathname } from "next/navigation"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
@@ -77,6 +78,8 @@ export function SidebarPanel({
   const [calculatedData, setCalculatedData] = useState<ReturnType<typeof calculateEclipseData> | null>(null)
   const [moonData, setMoonData] = useState<any>(null)
   const [loadingMoon, setLoadingMoon] = useState(false)
+  const [weatherStats, setWeatherStats] = useState<WeatherStats | null>(null)
+  const [loadingWeather, setLoadingWeather] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const isMapbox = pathname === "/mapbox"
@@ -119,6 +122,30 @@ export function SidebarPanel({
           console.error(error)
         } finally {
           setLoadingMoon(false)
+        }
+
+        // Fetch Historical Weather
+        setLoadingWeather(true)
+        try {
+          // Parse date
+          const parts = eclipseInfo.date.split(" de ")
+          const day = parseInt(parts[0])
+          const monthName = parts[1]
+          const monthMap: Record<string, number> = { "enero": 0, "agosto": 7 }
+          const month = monthMap[monthName] || 7
+          
+          // Determine approx hour based on eclipse ID
+          let hour = 12
+          if (selectedEclipseId === "2026") hour = 20
+          else if (selectedEclipseId === "2027") hour = 10
+          else if (selectedEclipseId === "2028") hour = 17
+
+          const stats = await getHistoricalWeather(lat, lng, month, day, hour)
+          setWeatherStats(stats)
+        } catch (error) {
+          console.error(error)
+        } finally {
+          setLoadingWeather(false)
         }
       }
     }
@@ -420,7 +447,7 @@ export function SidebarPanel({
 
                 <div className="space-y-3 pt-2">
                   <div className="text-xs font-semibold mb-2">Zonas Climáticas</div>
-                  {weatherZones.map((zone) => (
+                  {(weatherZones[selectedEclipseId] || []).map((zone) => (
                     <div
                       key={zone.id}
                       className="p-3 rounded-lg border border-border bg-card/50 cursor-pointer hover:bg-accent/50 transition-colors"
@@ -566,6 +593,62 @@ export function SidebarPanel({
                         <span>Distancia Sol:</span>
                         <span className="text-foreground">{(moonData.sun.position.distance / 1000000).toFixed(1)}M km</span>
                       </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Weather Stats Section */}
+                {loadingWeather && (
+                  <div className="flex justify-center p-4">
+                    <span className="text-xs text-muted-foreground">Analizando clima histórico...</span>
+                  </div>
+                )}
+
+                {weatherStats && (
+                  <div className="mt-4 space-y-3 p-3 bg-slate-900/30 rounded-lg border border-slate-800">
+                    <h3 className="text-sm font-bold flex items-center gap-2 text-slate-200">
+                      <CloudRain className="w-4 h-4" /> Histórico de Nubosidad
+                    </h3>
+                    <p className="text-[10px] text-muted-foreground">
+                      Basado en los últimos {weatherStats.yearsAnalyzed} años para este día y hora exacta.
+                    </p>
+
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center text-xs">
+                            <span>Probabilidad de Cielo Despejado</span>
+                            <span className={`font-bold ${weatherStats.clearSkyProbability > 70 ? "text-green-400" : weatherStats.clearSkyProbability > 40 ? "text-yellow-400" : "text-red-400"}`}>
+                                {weatherStats.clearSkyProbability}%
+                            </span>
+                        </div>
+                        <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div 
+                                className={`h-full rounded-full ${weatherStats.clearSkyProbability > 70 ? "bg-green-500" : weatherStats.clearSkyProbability > 40 ? "bg-yellow-500" : "bg-red-500"}`}
+                                style={{ width: `${weatherStats.clearSkyProbability}%` }}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs mt-2">
+                        <div className="bg-background/20 p-2 rounded text-center">
+                            <span className="block text-muted-foreground text-[10px]">Nubosidad Media</span>
+                            <span className="font-medium text-lg">{weatherStats.averageCloudCover}%</span>
+                        </div>
+                        <div className="bg-background/20 p-2 rounded text-center">
+                            <span className="block text-muted-foreground text-[10px]">Años Analizados</span>
+                            <span className="font-medium text-lg">{weatherStats.yearsAnalyzed}</span>
+                        </div>
+                    </div>
+                    
+                    <div className="space-y-1 mt-2 border-t border-slate-800 pt-2">
+                        <span className="text-[10px] text-muted-foreground block mb-1">Historial reciente:</span>
+                        {weatherStats.history.slice(0, 3).map((h) => (
+                            <div key={h.year} className="flex justify-between text-[10px]">
+                                <span className="text-slate-400">{h.year}</span>
+                                <span className={h.cloudCover < 20 ? "text-green-400" : "text-slate-300"}>
+                                    {h.cloudCover}% nubes
+                                </span>
+                            </div>
+                        ))}
                     </div>
                   </div>
                 )}

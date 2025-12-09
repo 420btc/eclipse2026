@@ -430,7 +430,7 @@ export function EclipseMap({
             {/* Weather Overlay (Modern Masking) */}
             {showWeather && (
               <g clipPath="url(#totality-clip)" filter="url(#weather-blur)" opacity="0.6">
-                {weatherZones.map((zone) => {
+                {(weatherZones[eclipseData.id] || []).map((zone) => {
                   const [x, y] = geoToScreen(zone.lng, zone.lat)
                   // Calculate radius based on zoom to keep size consistent relative to map
                   const radius = 100 * Math.pow(2, zoom - 6)
