@@ -10,8 +10,9 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { Sun, MapPin, Camera, Clock, Info, Search, Layers, Calculator, CloudRain, Globe, Moon, Ruler, CalendarClock, X, Trash2 } from "lucide-react"
+import { Sun, MapPin, Camera, Clock, Info, Search, Layers, Calculator, CloudRain, Globe, Moon, Ruler, CalendarClock, X, Trash2, Eye, ClipboardCheck } from "lucide-react"
 import { eclipses, type EclipseData } from "@/lib/eclipse-data"
+import { PreparationChecklist } from "@/components/preparation-checklist"
 import { pointsOfInterest, categoryLabels, categoryColors, type POICategory } from "@/lib/points-of-interest"
 import { calculateEclipseData } from "@/lib/eclipse-calculations"
 import { getSunPosition, calculateBearing, formatTime } from "@/lib/sun-utils"
@@ -83,6 +84,16 @@ export function SidebarPanel({
   const router = useRouter()
   const pathname = usePathname()
   const isMapbox = pathname === "/mapbox"
+
+  const [isAstronomyMode, setIsAstronomyMode] = useState(false)
+
+  React.useEffect(() => {
+    if (isAstronomyMode) {
+      document.documentElement.classList.add("astronomy-mode")
+    } else {
+      document.documentElement.classList.remove("astronomy-mode")
+    }
+  }, [isAstronomyMode])
 
   const currentEclipse = eclipses[selectedEclipseId]
   const citiesData = currentEclipse.cities
@@ -237,6 +248,15 @@ export function SidebarPanel({
               </SelectContent>
             </Select>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`h-8 w-8 ${isAstronomyMode ? "text-red-500 bg-red-950/30" : "text-muted-foreground"}`}
+            onClick={() => setIsAstronomyMode(!isAstronomyMode)}
+            title="Modo Astrónomo (Rojo)"
+          >
+            <Eye className="w-4 h-4" />
+          </Button>
         </div>
         <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
           <span>{eclipseInfo.date}</span>
@@ -245,7 +265,7 @@ export function SidebarPanel({
       </div>
 
       <Tabs defaultValue="lugares" className="flex-1 flex flex-col min-h-0">
-        <TabsList className="grid grid-cols-6 mx-4 mt-4 flex-shrink-0">
+        <TabsList className="grid grid-cols-7 mx-4 mt-4 flex-shrink-0">
           <TabsTrigger value="lugares" className="text-xs">
             <MapPin className="w-4 h-4" />
           </TabsTrigger>
@@ -260,6 +280,9 @@ export function SidebarPanel({
           </TabsTrigger>
           <TabsTrigger value="alineacion" className="text-xs">
             <Ruler className="w-4 h-4" />
+          </TabsTrigger>
+          <TabsTrigger value="prep" className="text-xs">
+            <ClipboardCheck className="w-4 h-4" />
           </TabsTrigger>
           <TabsTrigger value="info" className="text-xs">
             <Info className="w-4 h-4" />
@@ -514,6 +537,24 @@ export function SidebarPanel({
 
                 {calculatedData && (
                   <div className="mt-4 p-3 bg-muted/50 rounded-lg space-y-2 text-sm">
+                    <div className="flex justify-center my-4">
+                      <div className="relative w-32 h-32 bg-sky-950 rounded-full overflow-hidden border-2 border-sky-900 shadow-inner flex items-center justify-center">
+                          {/* Sun */}
+                          <div className="absolute w-16 h-16 bg-yellow-400 rounded-full shadow-[0_0_30px_rgba(250,204,21,0.8)]"></div>
+                          {/* Moon (shadow) */}
+                          <div 
+                            className="absolute w-[4.1rem] h-[4.1rem] bg-black rounded-full transition-transform duration-1000"
+                            style={{ 
+                                transform: `translateX(${calculatedData.isInTotality ? 0 : (1 - calculatedData.magnitude) * 50}px)` 
+                            }}
+                          ></div>
+                          {/* Corona effect if total */}
+                          {calculatedData.isInTotality && (
+                            <div className="absolute w-24 h-24 bg-white/10 animate-pulse rounded-full blur-xl pointer-events-none"></div>
+                          )}
+                      </div>
+                    </div>
+
                     <div className="flex items-center gap-2">
                       {calculatedData.isInTotality ? (
                         <Badge className="bg-green-600">En zona de totalidad</Badge>
@@ -692,6 +733,10 @@ export function SidebarPanel({
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="prep" className="p-4 space-y-4 mt-0">
+            <PreparationChecklist />
           </TabsContent>
 
           <TabsContent value="info" className="p-4 space-y-4 mt-0">

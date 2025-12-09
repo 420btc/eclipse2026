@@ -74,6 +74,41 @@
   --sidebar-ring: oklch(0.7 0.18 40);
 }
 
+.astronomy-mode {
+  --background: #000000;
+  --foreground: #ff0000;
+  --card: #0a0000;
+  --card-foreground: #ff0000;
+  --popover: #0a0000;
+  --popover-foreground: #ff0000;
+  --primary: #ff0000;
+  --primary-foreground: #000000;
+  --secondary: #220000;
+  --secondary-foreground: #ff0000;
+  --muted: #1a0000;
+  --muted-foreground: #cc0000;
+  --accent: #330000;
+  --accent-foreground: #ff0000;
+  --destructive: #ff0000;
+  --destructive-foreground: #000000;
+  --border: #440000;
+  --input: #220000;
+  --ring: #ff0000;
+  --chart-1: #ff0000;
+  --chart-2: #cc0000;
+  --chart-3: #990000;
+  --chart-4: #660000;
+  --chart-5: #330000;
+  --sidebar: #000000;
+  --sidebar-foreground: #ff0000;
+  --sidebar-primary: #ff0000;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #220000;
+  --sidebar-accent-foreground: #ff0000;
+  --sidebar-border: #440000;
+  --sidebar-ring: #ff0000;
+}
+
 @theme inline {
   --font-sans: "Geist", "Geist Fallback";
   --font-mono: "Geist Mono", "Geist Mono Fallback";
