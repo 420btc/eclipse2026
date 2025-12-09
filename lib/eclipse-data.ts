@@ -399,23 +399,29 @@ const eclipse2027: EclipseData = {
   name: "Eclipse 2027",
   pathData: [], // Simplified for this version
   centralLine: [
-    [-6.9, 35.8],
-    [-5.6, 35.95], // Strait
-    [-5.3, 36.0],
-    [-4.5, 36.1],
-    [-2.5, 36.3], // Alboran Sea
-    [-1.0, 36.5],
+    [-10.0, 36.2],
+    [-8.0, 36.1],
+    [-6.0, 35.95], // Strait of Gibraltar
+    [-4.0, 35.85], // Alboran Sea
+    [-2.0, 35.75], // North of Melilla
+    [0.0, 35.65],  // Near Oran
+    [2.0, 35.5],
   ],
   northLimit: [
-    [-6.5, 36.6], // Cadiz
-    [-5.5, 36.8], // Near Marbella
-    [-4.4, 37.0], // Malaga
-    [-2.5, 37.2],
+    [-10.0, 37.5],
+    [-8.0, 37.4],
+    [-6.0, 37.25], // North of Cadiz/Malaga
+    [-4.0, 37.15], // Near Granada coast
+    [-2.0, 37.05],
+    [0.0, 36.95],
   ],
   southLimit: [
-    [-6.0, 35.0],
-    [-5.0, 35.1],
-    [-3.0, 35.2], // Melilla
+    [-10.0, 34.9],
+    [-8.0, 34.8],
+    [-6.0, 34.65], // Morocco
+    [-4.0, 34.55],
+    [-2.0, 34.45],
+    [0.0, 34.35],
   ],
   cities: [
     {

@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { Sun, MapPin, Camera, Clock, Info, Search, Layers, Calculator, CloudRain, Globe, Moon, Ruler, CalendarClock } from "lucide-react"
+import { Sun, MapPin, Camera, Clock, Info, Search, Layers, Calculator, CloudRain, Globe, Moon, Ruler, CalendarClock, X, Trash2 } from "lucide-react"
 import { eclipses, type EclipseData } from "@/lib/eclipse-data"
 import { pointsOfInterest, categoryLabels, categoryColors, type POICategory } from "@/lib/points-of-interest"
 import { calculateEclipseData } from "@/lib/eclipse-calculations"
@@ -722,24 +722,52 @@ export function SidebarPanel({
                 </p>
                 
                 <div className="grid grid-cols-2 gap-3">
-                  <Button 
-                    variant={alignmentMode === "pointA" ? "default" : "outline"}
-                    className={`w-full text-xs flex gap-2 ${pointA ? "border-green-500/50" : ""}`}
-                    onClick={() => setAlignmentMode(alignmentMode === "pointA" ? null : "pointA")}
-                  >
-                    <MapPin className="w-3 h-3" />
-                    {pointA ? "Punto A (Fijado)" : "Definir Punto A"}
-                  </Button>
+                  <div className="space-y-1">
+                    <Button 
+                        variant={alignmentMode === "pointA" ? "default" : "outline"}
+                        className={`w-full text-xs flex gap-2 ${pointA ? "border-green-500/50" : ""}`}
+                        onClick={() => setAlignmentMode(alignmentMode === "pointA" ? null : "pointA")}
+                    >
+                        <MapPin className="w-3 h-3" />
+                        {pointA ? "A (Fijado)" : "Punto A"}
+                    </Button>
+                    {pointA && (
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full h-6 text-[10px] text-muted-foreground hover:text-destructive"
+                            onClick={() => {
+                                setPointA(null)
+                                // If A is removed, B usually loses context or we keep it but it won't show alignment
+                                // Optionally clear B too if desired, but user asked to remove A OR B
+                            }}
+                        >
+                            <Trash2 className="w-3 h-3 mr-1" /> Borrar A
+                        </Button>
+                    )}
+                  </div>
                   
-                  <Button 
-                    variant={alignmentMode === "pointB" ? "default" : "outline"}
-                    className={`w-full text-xs flex gap-2 ${pointB ? "border-blue-500/50" : ""}`}
-                    onClick={() => setAlignmentMode(alignmentMode === "pointB" ? null : "pointB")}
-                    disabled={!pointA}
-                  >
-                    <Camera className="w-3 h-3" />
-                    {pointB ? "Punto B (Fijado)" : "Definir Punto B"}
-                  </Button>
+                  <div className="space-y-1">
+                    <Button 
+                        variant={alignmentMode === "pointB" ? "default" : "outline"}
+                        className={`w-full text-xs flex gap-2 ${pointB ? "border-blue-500/50" : ""}`}
+                        onClick={() => setAlignmentMode(alignmentMode === "pointB" ? null : "pointB")}
+                        disabled={!pointA}
+                    >
+                        <Camera className="w-3 h-3" />
+                        {pointB ? "B (Fijado)" : "Punto B"}
+                    </Button>
+                    {pointB && (
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full h-6 text-[10px] text-muted-foreground hover:text-destructive"
+                            onClick={() => setPointB(null)}
+                        >
+                            <Trash2 className="w-3 h-3 mr-1" /> Borrar B
+                        </Button>
+                    )}
+                  </div>
                 </div>
                 
                 {alignmentMode === "pointA" && (

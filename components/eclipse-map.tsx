@@ -533,14 +533,14 @@ export function EclipseMap({
             return (
               <g key={poi.id} onClick={(e) => handlePOIClick(poi, e)} className="cursor-pointer pointer-events-auto">
                 <rect
-                  x={x - 10}
-                  y={y - 10}
-                  width="20"
-                  height="20"
-                  rx="4"
+                  x={x - 6}
+                  y={y - 6}
+                  width="12"
+                  height="12"
+                  rx="2"
                   fill={color}
                   stroke="#ffffff"
-                  strokeWidth="2.5"
+                  strokeWidth="2"
                 />
               </g>
             )
