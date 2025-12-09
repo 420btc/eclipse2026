@@ -3,7 +3,7 @@
 import type React from "react"
 import { useRef, useState, useEffect, useCallback } from "react"
 import { type EclipseData } from "@/lib/eclipse-data"
-import { pointsOfInterest, categoryColors, type POICategory } from "@/lib/points-of-interest"
+import { poisByYear, categoryColors, type POICategory, type PointOfInterest } from "@/lib/points-of-interest"
 import { weatherZones } from "@/lib/weather-data"
 import { X, ZoomIn, ZoomOut, RotateCcw, Layers } from "lucide-react"
 
@@ -271,7 +271,7 @@ export function EclipseMap({
     })
   }
 
-  const handlePOIClick = (poi: (typeof pointsOfInterest)[0], e: React.MouseEvent) => {
+  const handlePOIClick = (poi: PointOfInterest, e: React.MouseEvent) => {
     e.stopPropagation()
     setPopup({
       lat: poi.lat,
@@ -280,7 +280,8 @@ export function EclipseMap({
     })
   }
 
-  const filteredPOIs = pointsOfInterest.filter((poi) => selectedCategories.includes(poi.category))
+  const currentPOIs = poisByYear[eclipseData.id] || []
+  const filteredPOIs = currentPOIs.filter((poi) => selectedCategories.includes(poi.category))
 
   const resetView = () => {
     setCenter({ lat: 41.5, lng: -3.5 })

@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import { Sun, MapPin, Camera, Clock, Info, Search, Layers, Calculator, CloudRain, Globe, Moon, Ruler, CalendarClock, X, Trash2, Eye, ClipboardCheck } from "lucide-react"
 import { eclipses, type EclipseData } from "@/lib/eclipse-data"
 import { PreparationChecklist } from "@/components/preparation-checklist"
-import { pointsOfInterest, categoryLabels, categoryColors, type POICategory } from "@/lib/points-of-interest"
+import { poisByYear, categoryLabels, categoryColors, type POICategory } from "@/lib/points-of-interest"
 import { calculateEclipseData } from "@/lib/eclipse-calculations"
 import { getSunPosition, calculateBearing, formatTime } from "@/lib/sun-utils"
 import { weatherZones } from "@/lib/weather-data"
@@ -98,6 +98,7 @@ export function SidebarPanel({
   const currentEclipse = eclipses[selectedEclipseId]
   const citiesData = currentEclipse.cities
   const eclipseInfo = currentEclipse.info
+  const currentPOIs = poisByYear[selectedEclipseId] || []
 
   const filteredCities = citiesData.filter((city) => city.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
@@ -354,7 +355,7 @@ export function SidebarPanel({
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 px-4 pb-4">
-                {pointsOfInterest.slice(0, 6).map((poi) => (
+                {currentPOIs.slice(0, 6).map((poi) => (
                   <div
                     key={poi.id}
                     className="text-xs p-2 bg-muted/50 rounded cursor-pointer hover:bg-accent/50 transition-colors"

@@ -1,4 +1,4 @@
-// Puntos de interés REALES en la línea del eclipse 2026
+// Puntos de interés REALES en la línea del eclipse
 // Solo incluye lugares que están dentro o muy cerca de la franja de totalidad
 
 export type POICategory = "monumento" | "natural" | "religioso" | "museo" | "mirador"
@@ -15,7 +15,7 @@ export interface PointOfInterest {
   duracionTotalidad?: string
 }
 
-export const pointsOfInterest: PointOfInterest[] = [
+export const pointsOfInterest2026: PointOfInterest[] = [
   // GALICIA
   {
     id: "torre-hercules",
@@ -279,6 +279,277 @@ export const pointsOfInterest: PointOfInterest[] = [
     duracionTotalidad: "0m 55s",
   },
 ]
+
+export const pointsOfInterest2027: PointOfInterest[] = [
+  // CÁDIZ
+  {
+    id: "baelo-claudia",
+    name: "Baelo Claudia",
+    lat: 36.0898,
+    lng: -5.7735,
+    category: "monumento",
+    description: "Antigua ciudad romana en la playa de Bolonia. Una de las mejores vistas del eclipse.",
+    photoTip: "Totalidad ~4m 30s. Ruinas romanas con el sol alto (40°) y África de fondo.",
+    inTotality: true,
+    duracionTotalidad: "4m 30s",
+  },
+  {
+    id: "castillo-tarifa",
+    name: "Castillo de Guzmán el Bueno",
+    lat: 36.0125,
+    lng: -5.6028,
+    category: "monumento",
+    description: "Fortaleza califal en el punto más meridional de Europa continental.",
+    photoTip: "Totalidad ~4m 40s. Murallas medievales frente al Estrecho oscurecido.",
+    inTotality: true,
+    duracionTotalidad: "4m 40s",
+  },
+  {
+    id: "faro-camarinal",
+    name: "Faro de Camarinal",
+    lat: 36.0934,
+    lng: -5.8087,
+    category: "mirador",
+    description: "Faro sobre antigua torre vigía con vistas espectaculares del océano.",
+    photoTip: "Totalidad ~4m 35s. Silueta del faro con el cielo negro a mediodía.",
+    inTotality: true,
+    duracionTotalidad: "4m 35s",
+  },
+  // GIBRALTAR
+  {
+    id: "rock-gibraltar",
+    name: "Peñón de Gibraltar",
+    lat: 36.1447,
+    lng: -5.3526,
+    category: "natural",
+    description: "La famosa roca calcárea. Vistas únicas desde la cima.",
+    photoTip: "Totalidad ~4m 25s. Panorámica de 3 continentes bajo la sombra lunar.",
+    inTotality: true,
+    duracionTotalidad: "4m 25s",
+  },
+  {
+    id: "europa-point",
+    name: "Punta de Europa",
+    lat: 36.1096,
+    lng: -5.3463,
+    category: "mirador",
+    description: "Extremo sur de Gibraltar, con el faro y la mezquita.",
+    photoTip: "Totalidad ~4m 28s. Faro y mar con Marruecos visiblemente oscurecido.",
+    inTotality: true,
+    duracionTotalidad: "4m 28s",
+  },
+  // MÁLAGA
+  {
+    id: "castillo-duquesa",
+    name: "Castillo de la Duquesa",
+    lat: 36.3506,
+    lng: -5.2306,
+    category: "monumento",
+    description: "Fortaleza costera del siglo XVIII en Manilva.",
+    photoTip: "Totalidad ~3m 50s. Castillo junto al mar en plena Costa del Sol.",
+    inTotality: true,
+    duracionTotalidad: "3m 50s",
+  },
+  // CEUTA
+  {
+    id: "murallas-reales-ceuta",
+    name: "Murallas Reales de Ceuta",
+    lat: 35.8887,
+    lng: -5.3168,
+    category: "monumento",
+    description: "Conjunto monumental renacentista único con foso navegable.",
+    photoTip: "Totalidad ~4m 45s. Arquitectura militar con reflejos en el foso.",
+    inTotality: true,
+    duracionTotalidad: "4m 45s",
+  },
+  {
+    id: "monte-hacho",
+    name: "Monte Hacho",
+    lat: 35.8972,
+    lng: -5.2950,
+    category: "mirador",
+    description: "Uno de los posibles Pilares de Hércules, vistas dominantes.",
+    photoTip: "Totalidad ~4m 48s. Vista elevada de Ceuta y el Estrecho en eclipse.",
+    inTotality: true,
+    duracionTotalidad: "4m 48s",
+  },
+  // MELILLA
+  {
+    id: "melilla-vieja",
+    name: "Melilla la Vieja",
+    lat: 35.2941,
+    lng: -2.9333,
+    category: "monumento",
+    description: "Ciudadela fortificada sobre el mar, 'El Pueblo'.",
+    photoTip: "Totalidad ~4m 40s. Murallas fenicias y renacentistas bajo la corona solar.",
+    inTotality: true,
+    duracionTotalidad: "4m 40s",
+  },
+]
+
+export const pointsOfInterest2028: PointOfInterest[] = [
+  // HUELVA
+  {
+    id: "monasterio-rabida",
+    name: "Monasterio de La Rábida",
+    lat: 37.2091,
+    lng: -6.9272,
+    category: "religioso",
+    description: "Lugar colombino por excelencia. Anularidad visible.",
+    photoTip: "Anularidad ~7m. El anillo de fuego sobre el monasterio histórico.",
+    inTotality: true, // Es anularidad en realidad
+    duracionTotalidad: "7m 05s",
+  },
+  {
+    id: "muelle-tinto",
+    name: "Muelle del Tinto",
+    lat: 37.2575,
+    lng: -6.9385,
+    category: "monumento",
+    description: "Antiguo embarcadero de mineral inglés sobre el río Odiel.",
+    photoTip: "Anularidad ~7m. Estructura de hierro silueteada con el sol bajo.",
+    inTotality: true,
+    duracionTotalidad: "7m 05s",
+  },
+  // SEVILLA
+  {
+    id: "giralda",
+    name: "La Giralda",
+    lat: 37.3861,
+    lng: -5.9925,
+    category: "monumento",
+    description: "Icono de Sevilla. La anularidad pasará justo por encima.",
+    photoTip: "Anularidad ~7m 10s. El anillo de fuego junto al Giraldillo al atardecer.",
+    inTotality: true,
+    duracionTotalidad: "7m 10s",
+  },
+  {
+    id: "plaza-espana",
+    name: "Plaza de España",
+    lat: 37.3772,
+    lng: -5.9869,
+    category: "monumento",
+    description: "Conjunto arquitectónico monumental del Parque de María Luisa.",
+    photoTip: "Anularidad ~7m 10s. Reflejos en el canal y puentes con luz dorada extrema.",
+    inTotality: true,
+    duracionTotalidad: "7m 10s",
+  },
+  // CÓRDOBA
+  {
+    id: "mezquita-cordoba",
+    name: "Mezquita de Córdoba",
+    lat: 37.8789,
+    lng: -4.7794,
+    category: "religioso",
+    description: "Patrimonio de la Humanidad. Espectáculo único.",
+    photoTip: "Anularidad ~6m 50s. Arcos y palmeras con el sol anular.",
+    inTotality: true,
+    duracionTotalidad: "6m 50s",
+  },
+  {
+    id: "puente-romano",
+    name: "Puente Romano de Córdoba",
+    lat: 37.8763,
+    lng: -4.7778,
+    category: "monumento",
+    description: "Puente histórico sobre el Guadalquivir con vistas a la Mezquita.",
+    photoTip: "Anularidad ~6m 50s. Vista clásica del puente con el sol anular de fondo.",
+    inTotality: true,
+    duracionTotalidad: "6m 50s",
+  },
+  // JAÉN (Úbeda y Baeza están cerca del centro)
+  {
+    id: "plaza-vazquez-molina",
+    name: "Plaza Vázquez de Molina (Úbeda)",
+    lat: 38.0084,
+    lng: -3.3678,
+    category: "monumento",
+    description: "Joya del Renacimiento español. Patrimonio de la Humanidad.",
+    photoTip: "Anularidad ~7m. La Sacra Capilla del Salvador bajo el anillo de fuego.",
+    inTotality: true,
+    duracionTotalidad: "7m 00s",
+  },
+  // CASTILLA-LA MANCHA / ALBACETE
+  {
+    id: "castillo-almansa",
+    name: "Castillo de Almansa",
+    lat: 38.8706,
+    lng: -1.0975,
+    category: "monumento",
+    description: "Impresionante fortaleza sobre el cerro del Águila.",
+    photoTip: "Anularidad ~6m 30s. Silueta espectacular del castillo con el sol bajo.",
+    inTotality: true,
+    duracionTotalidad: "6m 30s",
+  },
+  // VALENCIA
+  {
+    id: "ciudad-artes",
+    name: "Ciudad de las Artes",
+    lat: 39.4546,
+    lng: -0.3503,
+    category: "monumento",
+    description: "Arquitectura futurista de Calatrava.",
+    photoTip: "Anularidad ~5m 30s. Formas modernas recortadas contra el anillo de fuego.",
+    inTotality: true,
+    duracionTotalidad: "5m 30s",
+  },
+  {
+    id: "albufera-valencia",
+    name: "La Albufera",
+    lat: 39.3333,
+    lng: -0.3667,
+    category: "natural",
+    description: "Parque natural y laguna costera famosa por sus atardeceres.",
+    photoTip: "Anularidad ~5m 45s. Puesta de sol ANULAR reflejada en el agua. Único.",
+    inTotality: true,
+    duracionTotalidad: "5m 45s",
+  },
+  // IBIZA
+  {
+    id: "dalt-vila",
+    name: "Dalt Vila",
+    lat: 38.9068,
+    lng: 1.4362,
+    category: "monumento",
+    description: "Casco antiguo fortificado de Ibiza.",
+    photoTip: "Anularidad ~4m. Puesta de sol anular sobre el mar.",
+    inTotality: true,
+    duracionTotalidad: "4m 00s",
+  },
+  {
+    id: "es-vedra",
+    name: "Es Vedrà",
+    lat: 38.8683,
+    lng: 1.2269,
+    category: "natural",
+    description: "Islote místico y magnético frente a la costa suroeste de Ibiza.",
+    photoTip: "Anularidad ~4m 30s. El anillo de fuego poniéndose tras la roca icónica.",
+    inTotality: true,
+    duracionTotalidad: "4m 30s",
+  },
+  // MALLORCA
+  {
+    id: "catedral-palma-2028",
+    name: "Catedral de Palma",
+    lat: 39.5674,
+    lng: 2.6483,
+    category: "religioso",
+    description: "La Seu gótica frente al mar. El eclipse ocurre justo en la puesta de sol.",
+    photoTip: "Anularidad ~3m. Sol rozando el horizonte (1°) junto a la catedral.",
+    inTotality: true,
+    duracionTotalidad: "3m 00s",
+  }
+]
+
+// Mapas de POIs por año
+export const poisByYear: Record<string, PointOfInterest[]> = {
+  "2026": pointsOfInterest2026,
+  "2027": pointsOfInterest2027,
+  "2028": pointsOfInterest2028,
+}
+
+// Mantener compatibilidad por defecto
+export const pointsOfInterest = pointsOfInterest2026
 
 export const categoryLabels: Record<POICategory, string> = {
   monumento: "Monumento",
