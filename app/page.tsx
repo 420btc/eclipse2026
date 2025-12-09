@@ -28,14 +28,35 @@ export default function EclipsePage() {
   } | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  const [alignmentMode, setAlignmentMode] = useState<"pointA" | "pointB" | null>(null)
+  const [pointA, setPointA] = useState<{ lat: number; lng: number } | null>(null)
+  const [pointB, setPointB] = useState<{ lat: number; lng: number } | null>(null)
+  const [eclipseTime, setEclipseTime] = useState<Date | null>(null)
+
   const handleLocationClick = useCallback((lat: number, lng: number) => {
-    setSelectedLocation({ lat, lng })
-  }, [])
+    if (alignmentMode === "pointA") {
+      setPointA({ lat, lng })
+      setAlignmentMode(null) // Auto-advance logic could go here or stay manual
+    } else if (alignmentMode === "pointB") {
+      setPointB({ lat, lng })
+      setAlignmentMode(null)
+    } else {
+      setSelectedLocation({ lat, lng })
+    }
+  }, [alignmentMode])
 
   const handleCitySelect = useCallback((lat: number, lng: number) => {
-    setSelectedLocation({ lat, lng })
-    setSidebarOpen(false)
-  }, [])
+    if (alignmentMode === "pointA") {
+        setPointA({ lat, lng })
+        setAlignmentMode(null)
+    } else if (alignmentMode === "pointB") {
+        setPointB({ lat, lng })
+        setAlignmentMode(null)
+    } else {
+        setSelectedLocation({ lat, lng })
+        setSidebarOpen(false)
+    }
+  }, [alignmentMode])
 
   const currentEclipse = eclipses[selectedEclipseId] || defaultEclipse
 
@@ -58,6 +79,15 @@ export default function EclipsePage() {
           setSelectedCategories={setSelectedCategories}
           selectedLocation={selectedLocation}
           onCitySelect={handleCitySelect}
+          // Alignment props
+          alignmentMode={alignmentMode}
+          setAlignmentMode={setAlignmentMode}
+          pointA={pointA}
+          setPointA={setPointA}
+          pointB={pointB}
+          setPointB={setPointB}
+          eclipseTime={eclipseTime}
+          setEclipseTime={setEclipseTime}
         />
       </div>
 
@@ -78,13 +108,22 @@ export default function EclipsePage() {
               showCities={showCities}
               setShowCities={setShowCities}
               showPOIs={showPOIs}
-          setShowPOIs={setShowPOIs}
-          showWeather={showWeather}
-          setShowWeather={setShowWeather}
-          selectedCategories={selectedCategories}
+              setShowPOIs={setShowPOIs}
+              showWeather={showWeather}
+              setShowWeather={setShowWeather}
+              selectedCategories={selectedCategories}
               setSelectedCategories={setSelectedCategories}
               selectedLocation={selectedLocation}
               onCitySelect={handleCitySelect}
+              // Alignment props
+              alignmentMode={alignmentMode}
+              setAlignmentMode={setAlignmentMode}
+              pointA={pointA}
+              setPointA={setPointA}
+              pointB={pointB}
+              setPointB={setPointB}
+              eclipseTime={eclipseTime}
+              setEclipseTime={setEclipseTime}
             />
           </SheetContent>
         </Sheet>
@@ -100,6 +139,11 @@ export default function EclipsePage() {
           showWeather={showWeather}
           selectedCategories={selectedCategories}
           onLocationClick={handleLocationClick}
+          // Alignment props
+          pointA={pointA}
+          pointB={pointB}
+          eclipseTime={eclipseTime}
+          alignmentMode={alignmentMode}
         />
       </div>
     </div>

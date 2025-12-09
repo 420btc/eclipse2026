@@ -10,14 +10,16 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { Sun, MapPin, Camera, Clock, Info, Search, Layers, Calculator, CloudRain, Globe, Moon } from "lucide-react"
+import { Sun, MapPin, Camera, Clock, Info, Search, Layers, Calculator, CloudRain, Globe, Moon, Ruler, CalendarClock } from "lucide-react"
 import { eclipses, type EclipseData } from "@/lib/eclipse-data"
 import { pointsOfInterest, categoryLabels, categoryColors, type POICategory } from "@/lib/points-of-interest"
 import { calculateEclipseData } from "@/lib/eclipse-calculations"
+import { getSunPosition, calculateBearing, formatTime } from "@/lib/sun-utils"
 import { weatherZones } from "@/lib/weather-data"
 import { getMoonData } from "@/lib/moon-api"
 import { useRouter, usePathname } from "next/navigation"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Slider } from "@/components/ui/slider"
 
 interface SidebarPanelProps {
   selectedEclipseId: string
@@ -34,6 +36,15 @@ interface SidebarPanelProps {
   setSelectedCategories: (value: POICategory[]) => void
   selectedLocation: { lat: number; lng: number } | null
   onCitySelect: (lat: number, lng: number) => void
+  // Alignment Props
+  alignmentMode: "pointA" | "pointB" | null
+  setAlignmentMode: (mode: "pointA" | "pointB" | null) => void
+  pointA: { lat: number; lng: number } | null
+  setPointA: (point: { lat: number; lng: number } | null) => void
+  pointB: { lat: number; lng: number } | null
+  setPointB: (point: { lat: number; lng: number } | null) => void
+  eclipseTime: Date | null
+  setEclipseTime: (date: Date | null) => void
 }
 
 export function SidebarPanel({
@@ -51,6 +62,14 @@ export function SidebarPanel({
   setSelectedCategories,
   selectedLocation,
   onCitySelect,
+  alignmentMode,
+  setAlignmentMode,
+  pointA,
+  setPointA,
+  pointB,
+  setPointB,
+  eclipseTime,
+  setEclipseTime,
 }: SidebarPanelProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [customLat, setCustomLat] = useState("")
@@ -106,6 +125,71 @@ export function SidebarPanel({
   }
 
   const locationData = selectedLocation ? calculateEclipseData(selectedLocation.lat, selectedLocation.lng, currentEclipse) : null
+  
+  // Alignment Calculations
+  const [alignmentTimeOffset, setAlignmentTimeOffset] = useState(0) // Minutes relative to max eclipse
+
+  const getAlignmentData = () => {
+    if (!pointA) return null
+    
+    // Determine reference date/time
+    // Default to approximate eclipse time if not set
+    // 2026: ~20:30 CEST. 2027: ~10:45 CEST. 2028: ~17:55 CEST
+    let baseDateStr = eclipseInfo.date
+    // Parsing simplistic date "12 de agosto de 2026"
+    const parts = baseDateStr.split(' de ')
+    const day = parseInt(parts[0])
+    const monthName = parts[1]
+    const year = parseInt(parts[2])
+    const monthMap: Record<string, number> = { "enero": 0, "agosto": 7 }
+    
+    const date = new Date(year, monthMap[monthName] || 7, day)
+    
+    // Set approx time based on eclipse ID
+    if (selectedEclipseId === "2026") date.setHours(20, 30, 0)
+    else if (selectedEclipseId === "2027") date.setHours(10, 45, 0)
+    else if (selectedEclipseId === "2028") date.setHours(17, 55, 0)
+    
+    // Apply offset
+    date.setMinutes(date.getMinutes() + alignmentTimeOffset)
+    
+    // Update parent state if needed, or just use local derived date
+    // Better to update parent so map can use it
+    if (eclipseTime?.getTime() !== date.getTime()) {
+       // Avoid infinite loop, maybe do this in useEffect or just use local var for calculation
+       // We'll update parent state only when slider changes
+    }
+    
+    const sunPos = getSunPosition(pointA.lat, pointA.lng, date)
+    
+    let bearingAB = null
+    let diff = null
+    
+    if (pointB) {
+        bearingAB = calculateBearing(pointA.lat, pointA.lng, pointB.lat, pointB.lng)
+        // Diff: shortest angle
+        let d = Math.abs(sunPos.azimuthDegrees - bearingAB)
+        if (d > 180) d = 360 - d
+        diff = d
+    }
+    
+    return {
+        date,
+        sunPos,
+        bearingAB,
+        diff
+    }
+  }
+
+  const alignmentData = getAlignmentData()
+  
+  // Effect to sync time to map
+  React.useEffect(() => {
+      if (alignmentData) {
+          setEclipseTime(alignmentData.date)
+      }
+  }, [alignmentTimeOffset, selectedEclipseId])
+
 
   return (
     <div className="w-full h-full bg-background border-r border-border flex flex-col overflow-hidden">
@@ -149,6 +233,9 @@ export function SidebarPanel({
           </TabsTrigger>
           <TabsTrigger value="info" className="text-xs">
             <Info className="w-4 h-4" />
+          </TabsTrigger>
+          <TabsTrigger value="alineacion" className="text-xs">
+            <Ruler className="w-4 h-4" />
           </TabsTrigger>
         </TabsList>
 
@@ -617,6 +704,109 @@ export function SidebarPanel({
                   <span className="text-blue-400">📍</span>
                   <span>Busca ubicación con horizonte oeste despejado</span>
                 </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="alineacion" className="p-4 space-y-4 mt-0">
+            <Card>
+              <CardHeader className="py-3 px-4">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Ruler className="w-4 h-4" />
+                  Alineación Solar
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 px-4 pb-4">
+                <p className="text-xs text-muted-foreground">
+                  Define tu posición (A) y tu objetivo (B) para ver si el sol estará alineado durante el eclipse.
+                </p>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <Button 
+                    variant={alignmentMode === "pointA" ? "default" : "outline"}
+                    className={`w-full text-xs flex gap-2 ${pointA ? "border-green-500/50" : ""}`}
+                    onClick={() => setAlignmentMode(alignmentMode === "pointA" ? null : "pointA")}
+                  >
+                    <MapPin className="w-3 h-3" />
+                    {pointA ? "Punto A (Fijado)" : "Definir Punto A"}
+                  </Button>
+                  
+                  <Button 
+                    variant={alignmentMode === "pointB" ? "default" : "outline"}
+                    className={`w-full text-xs flex gap-2 ${pointB ? "border-blue-500/50" : ""}`}
+                    onClick={() => setAlignmentMode(alignmentMode === "pointB" ? null : "pointB")}
+                    disabled={!pointA}
+                  >
+                    <Camera className="w-3 h-3" />
+                    {pointB ? "Punto B (Fijado)" : "Definir Punto B"}
+                  </Button>
+                </div>
+                
+                {alignmentMode === "pointA" && (
+                  <div className="text-xs text-amber-500 bg-amber-500/10 p-2 rounded animate-pulse">
+                    Haz clic en el mapa para establecer tu ubicación.
+                  </div>
+                )}
+                 {alignmentMode === "pointB" && (
+                  <div className="text-xs text-blue-500 bg-blue-500/10 p-2 rounded animate-pulse">
+                    Haz clic en el mapa para establecer el objetivo.
+                  </div>
+                )}
+
+                {alignmentData && (
+                  <div className="space-y-4 mt-4 pt-4 border-t border-border">
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                            <Label className="text-xs">Hora: {formatTime(alignmentData.date)}</Label>
+                            <span className="text-xs text-muted-foreground">{alignmentTimeOffset > 0 ? `+${alignmentTimeOffset}m` : `${alignmentTimeOffset}m`}</span>
+                        </div>
+                        <Slider 
+                            value={[alignmentTimeOffset]} 
+                            min={-60} 
+                            max={60} 
+                            step={1} 
+                            onValueChange={(v) => setAlignmentTimeOffset(v[0])}
+                            className="py-2"
+                        />
+                        <div className="flex justify-between text-[10px] text-muted-foreground">
+                            <span>-1h</span>
+                            <span>Máximo</span>
+                            <span>+1h</span>
+                        </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div className="p-2 bg-muted/50 rounded space-y-1">
+                            <span className="text-muted-foreground block">Azimut Sol</span>
+                            <div className="font-medium text-lg text-orange-400">{alignmentData.sunPos.azimuthDegrees.toFixed(1)}°</div>
+                        </div>
+                        <div className="p-2 bg-muted/50 rounded space-y-1">
+                            <span className="text-muted-foreground block">Elevación Sol</span>
+                            <div className="font-medium text-lg text-orange-400">{alignmentData.sunPos.altitude.toFixed(1)}°</div>
+                        </div>
+                        {alignmentData.bearingAB !== null && (
+                             <div className="p-2 bg-muted/50 rounded space-y-1">
+                                <span className="text-muted-foreground block">Azimut A→B</span>
+                                <div className="font-medium text-lg text-blue-400">{alignmentData.bearingAB.toFixed(1)}°</div>
+                            </div>
+                        )}
+                        {alignmentData.diff !== null && (
+                             <div className="p-2 bg-muted/50 rounded space-y-1">
+                                <span className="text-muted-foreground block">Diferencia</span>
+                                <div className={`font-medium text-lg ${alignmentData.diff < 2 ? "text-green-500" : "text-foreground"}`}>
+                                    {alignmentData.diff.toFixed(1)}°
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    
+                    {alignmentData.diff !== null && alignmentData.diff < 2 && (
+                        <div className="p-2 bg-green-500/20 text-green-400 rounded text-xs text-center font-medium border border-green-500/30">
+                            ¡Alineación Perfecta! ✨
+                        </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

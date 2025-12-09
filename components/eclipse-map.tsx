@@ -7,6 +7,8 @@ import { pointsOfInterest, categoryColors, type POICategory } from "@/lib/points
 import { weatherZones } from "@/lib/weather-data"
 import { X, ZoomIn, ZoomOut, RotateCcw, Layers } from "lucide-react"
 
+import { getSunPosition } from "@/lib/sun-utils"
+
 interface EclipseMapProps {
   eclipseData: EclipseData
   showPath: boolean
@@ -15,6 +17,11 @@ interface EclipseMapProps {
   showWeather: boolean
   selectedCategories: POICategory[]
   onLocationClick: (lat: number, lng: number) => void
+  // Alignment Props
+  alignmentMode?: "pointA" | "pointB" | null
+  pointA?: { lat: number; lng: number } | null
+  pointB?: { lat: number; lng: number } | null
+  eclipseTime?: Date | null
 }
 
 interface PopupInfo {
@@ -55,6 +62,10 @@ export function EclipseMap({
   showWeather,
   selectedCategories,
   onLocationClick,
+  alignmentMode,
+  pointA,
+  pointB,
+  eclipseTime,
 }: EclipseMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 })
@@ -258,6 +269,91 @@ export function EclipseMap({
     setZoom(6)
     setPopup(null)
   }
+  
+  // Alignment rendering logic
+  const renderAlignment = () => {
+      if (!pointA) return null
+      
+      const [ax, ay] = geoToScreen(pointA.lng, pointA.lat)
+      
+      // Point B
+      let bx, by
+      if (pointB) {
+          [bx, by] = geoToScreen(pointB.lng, pointB.lat)
+      }
+      
+      // Sun Azimuth Line
+      let sunEndX, sunEndY
+      if (eclipseTime) {
+          const sunPos = getSunPosition(pointA.lat, pointA.lng, eclipseTime)
+          // Calculate end point of sun line (arbitrary length for visualization, e.g. 500px or to screen edge)
+          // We need to project azimuth (degrees clockwise from North) to screen coordinates
+          // Map projection: North is up (-Y), East is right (+X)
+          // Azimuth 0 (N) -> -Y
+          // Azimuth 90 (E) -> +X
+          // Azimuth 180 (S) -> +Y
+          // Azimuth 270 (W) -> -X
+          
+          // Angle in math (radians, from +X, counter-clockwise):
+          // 0 (E) -> 0
+          // 90 (N) -> PI/2
+          // 180 (W) -> PI
+          // 270 (S) -> 3*PI/2
+          
+          // Conversion:
+          // MathAngle = 90 - Azimuth (degrees)
+          // If Azimuth = 0 (N), MathAngle = 90. cos(90)=0, sin(90)=1. Vector (0, -1) [Wait, screen Y is down]
+          // Screen Y increases downwards.
+          // North (-Y)
+          // East (+X)
+          // South (+Y)
+          // West (-X)
+          
+          // So:
+          // x = sin(azimuth)
+          // y = -cos(azimuth) (because up is negative Y)
+          
+          const rad = (sunPos.azimuthDegrees * Math.PI) / 180
+          const length = 1000 // Long enough line
+          const dx = Math.sin(rad) * length
+          const dy = -Math.cos(rad) * length
+          
+          sunEndX = ax + dx
+          sunEndY = ay + dy
+      }
+      
+      return (
+          <g className="pointer-events-none">
+            {/* Sun Azimuth Line */}
+            {sunEndX !== undefined && sunEndY !== undefined && (
+                <line 
+                    x1={ax} y1={ay} x2={sunEndX} y2={sunEndY} 
+                    stroke="#fbbf24" strokeWidth="3" strokeDasharray="8 4" opacity="0.8"
+                />
+            )}
+            
+            {/* Line A -> B */}
+            {bx !== undefined && by !== undefined && (
+                <line 
+                    x1={ax} y1={ay} x2={bx} y2={by} 
+                    stroke="#3b82f6" strokeWidth="2" opacity="0.6"
+                />
+            )}
+            
+            {/* Point A Marker */}
+            <circle cx={ax} cy={ay} r="6" fill="#10b981" stroke="white" strokeWidth="2" />
+            <text x={ax} y={ay - 10} textAnchor="middle" fill="#10b981" fontSize="12" fontWeight="bold" style={{textShadow: "0 0 2px black"}}>A</text>
+            
+            {/* Point B Marker */}
+            {bx !== undefined && by !== undefined && (
+                <>
+                    <circle cx={bx} cy={by} r="6" fill="#3b82f6" stroke="white" strokeWidth="2" />
+                    <text x={bx} y={by - 10} textAnchor="middle" fill="#3b82f6" fontSize="12" fontWeight="bold" style={{textShadow: "0 0 2px black"}}>B</text>
+                </>
+            )}
+          </g>
+      )
+  }
 
   // Calculate tile positions
   const centerTileX = lngToTileX(center.lng, zoom)
@@ -431,6 +527,9 @@ export function EclipseMap({
               </g>
             )
           })}
+        
+        {/* Alignment Tool Layer */}
+        {renderAlignment()}
       </svg>
 
       {/* Popup */}
