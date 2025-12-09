@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu } from "lucide-react"
 import type { POICategory } from "@/lib/points-of-interest"
+import { eclipses, defaultEclipse } from "@/lib/eclipse-data"
 
 export default function EclipsePage() {
+  const [selectedEclipseId, setSelectedEclipseId] = useState(defaultEclipse.id)
   const [showPath, setShowPath] = useState(true)
   const [showCities, setShowCities] = useState(true)
   const [showPOIs, setShowPOIs] = useState(true)
@@ -35,11 +37,15 @@ export default function EclipsePage() {
     setSidebarOpen(false)
   }, [])
 
+  const currentEclipse = eclipses[selectedEclipseId] || defaultEclipse
+
   return (
     <div className="h-[100dvh] w-full flex bg-background overflow-hidden">
       {/* Desktop Sidebar */}
       <div className="hidden md:flex w-80 flex-col flex-shrink-0 h-full">
         <SidebarPanel
+          selectedEclipseId={selectedEclipseId}
+          onEclipseChange={setSelectedEclipseId}
           showPath={showPath}
           setShowPath={setShowPath}
           showCities={showCities}
@@ -65,6 +71,8 @@ export default function EclipsePage() {
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-80">
             <SidebarPanel
+              selectedEclipseId={selectedEclipseId}
+              onEclipseChange={setSelectedEclipseId}
               showPath={showPath}
               setShowPath={setShowPath}
               showCities={showCities}
@@ -85,6 +93,7 @@ export default function EclipsePage() {
       {/* Map */}
       <div className="flex-1 relative h-full w-full">
         <EclipseMap
+          eclipseData={currentEclipse}
           showPath={showPath}
           showCities={showCities}
           showPOIs={showPOIs}

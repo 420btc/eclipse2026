@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,13 +10,18 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { Sun, MapPin, Camera, Clock, Info, Search, Layers, Calculator, CloudRain } from "lucide-react"
-import { citiesData, eclipseInfo } from "@/lib/eclipse-data"
+import { Sun, MapPin, Camera, Clock, Info, Search, Layers, Calculator, CloudRain, Globe, Moon } from "lucide-react"
+import { eclipses, type EclipseData } from "@/lib/eclipse-data"
 import { pointsOfInterest, categoryLabels, categoryColors, type POICategory } from "@/lib/points-of-interest"
 import { calculateEclipseData } from "@/lib/eclipse-calculations"
 import { weatherZones } from "@/lib/weather-data"
+import { getMoonData } from "@/lib/moon-api"
+import { useRouter, usePathname } from "next/navigation"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface SidebarPanelProps {
+  selectedEclipseId: string
+  onEclipseChange: (id: string) => void
   showPath: boolean
   setShowPath: (value: boolean) => void
   showCities: boolean
@@ -32,6 +37,8 @@ interface SidebarPanelProps {
 }
 
 export function SidebarPanel({
+  selectedEclipseId,
+  onEclipseChange,
   showPath,
   setShowPath,
   showCities,
@@ -49,6 +56,15 @@ export function SidebarPanel({
   const [customLat, setCustomLat] = useState("")
   const [customLng, setCustomLng] = useState("")
   const [calculatedData, setCalculatedData] = useState<ReturnType<typeof calculateEclipseData> | null>(null)
+  const [moonData, setMoonData] = useState<any>(null)
+  const [loadingMoon, setLoadingMoon] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
+  const isMapbox = pathname === "/mapbox"
+
+  const currentEclipse = eclipses[selectedEclipseId]
+  const citiesData = currentEclipse.cities
+  const eclipseInfo = currentEclipse.info
 
   const filteredCities = citiesData.filter((city) => city.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
@@ -60,30 +76,60 @@ export function SidebarPanel({
     }
   }
 
-  const handleCalculate = () => {
-    const lat = Number.parseFloat(customLat)
-    const lng = Number.parseFloat(customLng)
-    if (!isNaN(lat) && !isNaN(lng)) {
-      const data = calculateEclipseData(lat, lng)
-      setCalculatedData(data)
+  const handleCalculate = async () => {
+    if (customLat && customLng) {
+      const lat = Number.parseFloat(customLat)
+      const lng = Number.parseFloat(customLng)
+      if (!isNaN(lat) && !isNaN(lng)) {
+        setCalculatedData(calculateEclipseData(lat, lng, currentEclipse))
+        
+        // Fetch Moon Data
+        setLoadingMoon(true)
+        try {
+          // Eclipse date: use currentEclipse date (needs parsing or simpler approach)
+          // For now using the date string from info, simplified logic
+          const dateStr = eclipseInfo.date.split(" de ")[2] // simplistic parsing for "12 de agosto de 2026"
+          const monthMap: Record<string, string> = { "enero": "01", "agosto": "08" }
+          const monthStr = eclipseInfo.date.split(" de ")[1]
+          const dayStr = eclipseInfo.date.split(" de ")[0].padStart(2, '0')
+          const isoDate = `${dateStr}-${monthMap[monthStr] || "08"}-${dayStr}`
+          
+          const data = await getMoonData(lat, lng, isoDate)
+          setMoonData(data)
+        } catch (error) {
+          console.error(error)
+        } finally {
+          setLoadingMoon(false)
+        }
+      }
     }
   }
 
-  const locationData = selectedLocation ? calculateEclipseData(selectedLocation.lat, selectedLocation.lng) : null
+  const locationData = selectedLocation ? calculateEclipseData(selectedLocation.lat, selectedLocation.lng, currentEclipse) : null
 
   return (
     <div className="w-full h-full bg-background border-r border-border flex flex-col overflow-hidden">
       <div className="p-4 border-b border-border flex-shrink-0">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mb-3">
           <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center">
             <Sun className="w-6 h-6 text-orange-500" />
           </div>
-          <div>
-            <h1 className="font-bold text-lg text-foreground">Eclipse 2026</h1>
-            <p className="text-xs text-muted-foreground">
-              {eclipseInfo.date} - {eclipseInfo.dayOfWeek}
-            </p>
+          <div className="flex-1">
+            <Select value={selectedEclipseId} onValueChange={onEclipseChange}>
+              <SelectTrigger className="h-8 w-full">
+                <SelectValue placeholder="Seleccionar eclipse" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2026">Eclipse Total 2026</SelectItem>
+                <SelectItem value="2027">Eclipse Total 2027</SelectItem>
+                <SelectItem value="2028">Eclipse Anular 2028</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+        </div>
+        <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
+          <span>{eclipseInfo.date}</span>
+          <span>{eclipseInfo.dayOfWeek}</span>
         </div>
       </div>
 
@@ -113,7 +159,7 @@ export function SidebarPanel({
               <Input
                 placeholder="Buscar ciudad..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                 className="pl-9"
               />
             </div>
@@ -331,7 +377,7 @@ export function SidebarPanel({
                       id="lat"
                       placeholder="42.8782"
                       value={customLat}
-                      onChange={(e) => setCustomLat(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomLat(e.target.value)}
                       className="h-8 text-sm"
                     />
                   </div>
@@ -343,7 +389,7 @@ export function SidebarPanel({
                       id="lng"
                       placeholder="-8.5448"
                       value={customLng}
-                      onChange={(e) => setCustomLng(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomLng(e.target.value)}
                       className="h-8 text-sm"
                     />
                   </div>
@@ -387,6 +433,51 @@ export function SidebarPanel({
                       <div>
                         <span className="text-muted-foreground">Dist. centro:</span>
                         <div className="font-medium">{calculatedData.distanceFromCenter} km</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* MoonAPI Data Section */}
+                {loadingMoon && (
+                  <div className="flex justify-center p-4">
+                    <span className="loading loading-spinner text-orange-500">Cargando datos lunares...</span>
+                  </div>
+                )}
+
+                {moonData && (
+                  <div className="mt-4 space-y-3 p-3 bg-blue-950/30 rounded-lg border border-blue-900/50">
+                    <h3 className="text-sm font-bold flex items-center gap-2 text-blue-200">
+                      <Moon className="w-4 h-4" /> Datos Astronómicos (MoonAPI)
+                    </h3>
+                    
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-background/20 p-2 rounded">
+                        <span className="block text-muted-foreground">Fase Lunar</span>
+                        <span className="font-medium text-foreground">{moonData.moon.phase_name} {moonData.moon.emoji}</span>
+                      </div>
+                      <div className="bg-background/20 p-2 rounded">
+                        <span className="block text-muted-foreground">Iluminación</span>
+                        <span className="font-medium text-foreground">{moonData.moon.illumination}</span>
+                      </div>
+                      <div className="bg-background/20 p-2 rounded">
+                        <span className="block text-muted-foreground">Salida Luna</span>
+                        <span className="font-medium text-foreground">{moonData.moon.moonrise}</span>
+                      </div>
+                      <div className="bg-background/20 p-2 rounded">
+                        <span className="block text-muted-foreground">Puesta Sol</span>
+                        <span className="font-medium text-orange-300">{moonData.sun.sunset_timestamp}</span>
+                      </div>
+                    </div>
+
+                    <div className="text-xs text-muted-foreground pt-2 border-t border-white/10">
+                      <div className="flex justify-between">
+                        <span>Constelación:</span>
+                        <span className="text-foreground">{moonData.moon.zodiac.moon_sign}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Distancia Sol:</span>
+                        <span className="text-foreground">{(moonData.sun.position.distance / 1000000).toFixed(1)}M km</span>
                       </div>
                     </div>
                   </div>

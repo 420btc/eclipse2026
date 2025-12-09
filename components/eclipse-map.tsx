@@ -2,12 +2,13 @@
 
 import type React from "react"
 import { useRef, useState, useEffect, useCallback } from "react"
-import { eclipseCentralLine, eclipseNorthLimit, eclipseSouthLimit, citiesData } from "@/lib/eclipse-data"
+import { type EclipseData } from "@/lib/eclipse-data"
 import { pointsOfInterest, categoryColors, type POICategory } from "@/lib/points-of-interest"
 import { weatherZones } from "@/lib/weather-data"
 import { X, ZoomIn, ZoomOut, RotateCcw, Layers } from "lucide-react"
 
 interface EclipseMapProps {
+  eclipseData: EclipseData
   showPath: boolean
   showCities: boolean
   showPOIs: boolean
@@ -47,6 +48,7 @@ function tileYToLat(y: number, zoom: number): number {
 }
 
 export function EclipseMap({
+  eclipseData,
   showPath,
   showCities,
   showPOIs,
@@ -222,8 +224,8 @@ export function EclipseMap({
 
   // Create totality zone polygon
   const totalityPolygonPath = (): string => {
-    const northPoints = eclipseNorthLimit.map((c) => geoToScreen(c[0], c[1]))
-    const southPoints = eclipseSouthLimit
+    const northPoints = eclipseData.northLimit.map((c) => geoToScreen(c[0], c[1]))
+    const southPoints = eclipseData.southLimit
       .slice()
       .reverse()
       .map((c) => geoToScreen(c[0], c[1]))
@@ -231,7 +233,7 @@ export function EclipseMap({
     return allPoints.map((p, i) => `${i === 0 ? "M" : "L"} ${p[0]} ${p[1]}`).join(" ") + " Z"
   }
 
-  const handleCityClick = (city: (typeof citiesData)[0], e: React.MouseEvent) => {
+  const handleCityClick = (city: (typeof eclipseData.cities)[0], e: React.MouseEvent) => {
     e.stopPropagation()
     setPopup({
       lat: city.lat,
@@ -274,7 +276,7 @@ export function EclipseMap({
     >
       {/* Map tiles layer */}
       <div className="absolute inset-0 overflow-hidden">
-        {tiles.map((tile) => {
+        {tiles.map((tile: { x: number; y: number; url: string }) => {
           const tileScreenX = dimensions.width / 2 + (tile.x - centerTileX) * TILE_SIZE
           const tileScreenY = dimensions.height / 2 + (tile.y - centerTileY) * TILE_SIZE
           return (
@@ -333,7 +335,7 @@ export function EclipseMap({
 
             {/* North limit */}
             <path
-              d={coordsToPath(eclipseNorthLimit)}
+              d={coordsToPath(eclipseData.northLimit)}
               fill="none"
               stroke="#60a5fa"
               strokeWidth="3"
@@ -343,7 +345,7 @@ export function EclipseMap({
 
             {/* South limit */}
             <path
-              d={coordsToPath(eclipseSouthLimit)}
+              d={coordsToPath(eclipseData.southLimit)}
               fill="none"
               stroke="#60a5fa"
               strokeWidth="3"
@@ -353,7 +355,7 @@ export function EclipseMap({
 
             {/* Central line glow */}
             <path
-              d={coordsToPath(eclipseCentralLine)}
+              d={coordsToPath(eclipseData.centralLine)}
               fill="none"
               stroke="#ef4444"
               strokeWidth="12"
@@ -363,7 +365,7 @@ export function EclipseMap({
 
             {/* Central line */}
             <path
-              d={coordsToPath(eclipseCentralLine)}
+              d={coordsToPath(eclipseData.centralLine)}
               fill="none"
               stroke="#ef4444"
               strokeWidth="4"
@@ -374,7 +376,7 @@ export function EclipseMap({
 
         {/* City markers */}
         {showCities &&
-          citiesData.map((city) => {
+          eclipseData.cities.map((city) => {
             const [x, y] = geoToScreen(city.lng, city.lat)
             // Only render if in view
             if (x < -50 || x > dimensions.width + 50 || y < -50 || y > dimensions.height + 50) return null
@@ -533,21 +535,21 @@ export function EclipseMap({
       {/* Controls */}
       <div className="absolute top-4 right-4 flex flex-col gap-2">
         <button
-          onClick={() => setMapStyle((s) => (s === "dark" ? "satellite" : "dark"))}
+          onClick={() => setMapStyle((s: "dark" | "satellite") => (s === "dark" ? "satellite" : "dark"))}
           className="w-10 h-10 bg-card/90 backdrop-blur-sm rounded-lg border border-border text-foreground hover:bg-accent flex items-center justify-center transition-colors"
           title="Cambiar mapa base"
         >
           <Layers className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setZoom((z) => Math.min(12, z + 1))}
+          onClick={() => setZoom((z: number) => Math.min(12, z + 1))}
           className="w-10 h-10 bg-card/90 backdrop-blur-sm rounded-lg border border-border text-foreground hover:bg-accent flex items-center justify-center transition-colors"
           title="Acercar"
         >
           <ZoomIn className="w-5 h-5" />
         </button>
         <button
-          onClick={() => setZoom((z) => Math.max(4, z - 1))}
+          onClick={() => setZoom((z: number) => Math.max(4, z - 1))}
           className="w-10 h-10 bg-card/90 backdrop-blur-sm rounded-lg border border-border text-foreground hover:bg-accent flex items-center justify-center transition-colors"
           title="Alejar"
         >
