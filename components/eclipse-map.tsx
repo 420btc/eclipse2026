@@ -691,6 +691,14 @@ export function EclipseMap({
         </div>
       )}
 
+      {/* Coordinates display - Hidden on mobile */}
+      <div className="hidden md:block absolute top-4 left-4 bg-card/90 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-muted-foreground border border-border">
+        <div>Zoom: {zoom.toFixed(1)}</div>
+        <div>
+          Centro: {center.lat.toFixed(3)}°N, {Math.abs(center.lng).toFixed(3)}°{center.lng < 0 ? "W" : "E"}
+        </div>
+      </div>
+
       {/* Controls */}
       <div className="absolute top-4 right-4 flex flex-col gap-2">
         <button
@@ -723,8 +731,8 @@ export function EclipseMap({
         </button>
       </div>
 
-      {/* Legend */}
-      <div className="absolute bottom-4 right-4 bg-card/90 backdrop-blur-sm rounded-lg p-4 text-sm space-y-2.5 border border-border">
+      {/* Legend - Hidden on mobile, visible on desktop */}
+      <div className="hidden md:block absolute bottom-4 right-4 bg-card/90 backdrop-blur-sm rounded-lg p-4 text-sm space-y-2.5 border border-border">
         <div className="font-semibold text-foreground mb-3">Leyenda</div>
         <div className="flex items-center gap-3">
           <div className="w-8 h-1 bg-red-500 rounded-full"></div>
@@ -744,16 +752,8 @@ export function EclipseMap({
         </div>
       </div>
 
-      {/* Coordinates display */}
-      <div className="absolute top-4 left-4 bg-card/90 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-muted-foreground border border-border">
-        <div>Zoom: {zoom.toFixed(1)}</div>
-        <div>
-          Centro: {center.lat.toFixed(3)}°N, {Math.abs(center.lng).toFixed(3)}°{center.lng < 0 ? "W" : "E"}
-        </div>
-      </div>
-
-      {/* Instructions */}
-      <div className="absolute bottom-4 left-4 bg-card/80 backdrop-blur-sm rounded-lg px-4 py-2 text-xs text-muted-foreground border border-border">
+      {/* Instructions - Hidden on mobile */}
+      <div className="hidden md:block absolute bottom-4 left-4 bg-card/80 backdrop-blur-sm rounded-lg px-4 py-2 text-xs text-muted-foreground border border-border">
         Arrastra para mover · Scroll/botones para zoom · Clic en marcadores para info
       </div>
     </div>
