@@ -3,9 +3,6 @@
 import { useState, useCallback } from "react"
 import { EclipseMap } from "@/components/eclipse-map"
 import { SidebarPanel } from "@/components/sidebar-panel"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu } from "lucide-react"
 import type { POICategory } from "@/lib/points-of-interest"
 import { eclipses, defaultEclipse } from "@/lib/eclipse-data"
 
@@ -26,7 +23,6 @@ export default function EclipsePage() {
     lat: number
     lng: number
   } | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const [alignmentMode, setAlignmentMode] = useState<"pointA" | "pointB" | null>(null)
   const [pointA, setPointA] = useState<{ lat: number; lng: number } | null>(null)
@@ -56,16 +52,15 @@ export default function EclipsePage() {
     } else {
         setSelectedLocation({ lat, lng })
         setFlyToLocation({ lat, lng })
-        setSidebarOpen(false)
     }
   }, [alignmentMode])
 
   const currentEclipse = eclipses[selectedEclipseId] || defaultEclipse
 
   return (
-    <div className="h-[100dvh] w-full flex bg-background overflow-hidden">
-      {/* Desktop Sidebar */}
-      <div className="hidden md:flex w-80 flex-col flex-shrink-0 h-full">
+    <div className="h-[100dvh] w-full flex flex-col md:flex-row bg-background overflow-hidden">
+      {/* Sidebar Panel - Desktop: Left, Mobile: Bottom */}
+      <div className="w-full md:w-80 h-[40%] md:h-full flex-shrink-0 border-t md:border-t-0 md:border-r border-border order-2 md:order-1 bg-background z-10 relative shadow-xl md:shadow-none">
         <SidebarPanel
           selectedEclipseId={selectedEclipseId}
           onEclipseChange={setSelectedEclipseId}
@@ -93,46 +88,8 @@ export default function EclipsePage() {
         />
       </div>
 
-      {/* Mobile Sidebar */}
-      <div className="md:hidden absolute top-4 left-4 z-20">
-        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-          <SheetTrigger asChild>
-            <Button size="icon" variant="secondary" className="shadow-lg">
-              <Menu className="w-5 h-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-80">
-            <SidebarPanel
-              selectedEclipseId={selectedEclipseId}
-              onEclipseChange={setSelectedEclipseId}
-              showPath={showPath}
-              setShowPath={setShowPath}
-              showCities={showCities}
-              setShowCities={setShowCities}
-              showPOIs={showPOIs}
-              setShowPOIs={setShowPOIs}
-              showWeather={showWeather}
-              setShowWeather={setShowWeather}
-              selectedCategories={selectedCategories}
-              setSelectedCategories={setSelectedCategories}
-              selectedLocation={selectedLocation}
-              onCitySelect={handleCitySelect}
-              // Alignment props
-              alignmentMode={alignmentMode}
-              setAlignmentMode={setAlignmentMode}
-              pointA={pointA}
-              setPointA={setPointA}
-              pointB={pointB}
-              setPointB={setPointB}
-              eclipseTime={eclipseTime}
-              setEclipseTime={setEclipseTime}
-            />
-          </SheetContent>
-        </Sheet>
-      </div>
-
-      {/* Map */}
-      <div className="flex-1 relative h-full w-full">
+      {/* Map - Desktop: Right, Mobile: Top */}
+      <div className="flex-1 relative h-[60%] md:h-full w-full order-1 md:order-2">
         <EclipseMap
           eclipseData={currentEclipse}
           showPath={showPath}
