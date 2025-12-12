@@ -180,6 +180,15 @@ export function EclipseMap({
     }
   }
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      setIsDragging(true)
+      hasDragged.current = false
+      setDragStart({ x: e.touches[0].clientX, y: e.touches[0].clientY, lat: center.lat, lng: center.lng })
+      setPopup(null)
+    }
+  }
+
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging) {
       const dx = e.clientX - dragStart.x
@@ -202,7 +211,36 @@ export function EclipseMap({
     }
   }
 
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (isDragging && e.touches.length === 1) {
+      // Prevent default to stop scrolling the page while dragging map
+      // e.preventDefault() // This might be handled by CSS touch-action: none
+
+      const dx = e.touches[0].clientX - dragStart.x
+      const dy = e.touches[0].clientY - dragStart.y
+      
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+          hasDragged.current = true
+      }
+
+      const centerTileX = lngToTileX(dragStart.lng, zoom)
+      const centerTileY = latToTileY(dragStart.lat, zoom)
+
+      const newTileX = centerTileX - dx / TILE_SIZE
+      const newTileY = centerTileY - dy / TILE_SIZE
+
+      setCenter({
+        lng: tileXToLng(newTileX, zoom),
+        lat: tileYToLat(newTileY, zoom),
+      })
+    }
+  }
+
   const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  const handleTouchEnd = () => {
     setIsDragging(false)
   }
 
@@ -381,11 +419,14 @@ export function EclipseMap({
   return (
     <div
       ref={containerRef}
-      className="w-full h-full relative overflow-hidden cursor-grab active:cursor-grabbing select-none bg-[#1a1a2e]"
+      className="w-full h-full relative overflow-hidden cursor-grab active:cursor-grabbing select-none bg-[#1a1a2e] touch-none"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       onWheel={handleWheel}
       onClick={handleMapClick}
     >
